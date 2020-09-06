@@ -1,0 +1,16 @@
+#!/bin/bash -x
+RTTY=''; test -t 0 && RTTY='-ti'
+
+docker run $RTTY --rm \
+        -p 8545:8545 \
+        -p 30303:30303 \
+        ethereum/client-go:latest \
+        --targetgaslimit 10000000 \
+        --rpcvhosts '*,localhost,host.docker.internal' \
+        --rpccorsdomain '*' \
+        --dev  --rpc --rpcapi personal,web3,eth,admin,debug,miner,txpool,net \
+        --nodiscover --maxpeers 0 --mine --minerthreads 1 \
+        --rpcaddr "0.0.0.0" \
+        --networkid 1337 \
+        $* 2>&1 | sed -l -e 's/HTTP server started/Listening/' | tee /tmp/err.log
+
